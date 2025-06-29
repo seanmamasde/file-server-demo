@@ -75,8 +75,12 @@ async def delete(filename: str):
     filename = _validate_filename(filename)
     pool = await get_pool()
     result = await pool.execute("DELETE FROM files WHERE filename=$1", filename)
-    # asyncpg returns something like 'DELETE 0 1'
-    if result[-1] == "0":
+    # asyncpg returns something like 'DELETE <row_count>'
+    try:
+        row_count = int(result.split()[-1])  # Extract the row count
+    except (IndexError, ValueError):
+        raise HTTPException(500, "Unexpected response from database")
+    if row_count == 0:
         raise HTTPException(404, "Not found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
