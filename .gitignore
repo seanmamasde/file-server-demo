@@ -3,6 +3,7 @@ __pycache__
 .venv
 .pytest_cache
 .coverage
+.ruff_cache
 
 # editor
 .vscode

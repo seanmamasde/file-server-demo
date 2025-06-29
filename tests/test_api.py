@@ -1,5 +1,4 @@
 from pathlib import Path
-import pytest
 
 
 def _make_file(tmp_path: Path, name="hello.txt", content="Hello"):

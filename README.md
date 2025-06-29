@@ -40,8 +40,22 @@ echo "hello world" > hello.txt # or any file you want
 ## Tests
 
 ```bash
-# To run tests
+# to run tests
 poetry run pytest --cov=app
 ```
 
 ![coverage](coverage.png)
+
+## Pre-commit
+
+```bash
+# to install pre-commit
+pre-commit install 
+
+# installing pre-push
+pre-commit install -t pre-push
+
+# running it
+# this will take sometime for the first run, cus it needs to initialize environment for various tools. Subsequent runs should be much faster.
+pre-commit run --all-files
+```
