@@ -36,3 +36,12 @@ echo "hello world" > hello.txt # or any file you want
 ./filesrv-cli delete hello.txt
 ./filesrv-cli ping
 ```
+
+## Tests
+
+```bash
+# To run tests
+poetry run pytest --cov=app
+```
+
+![coverage](coverage.png)
