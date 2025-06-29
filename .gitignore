@@ -1,0 +1,10 @@
+# python stuff
+__pycache__
+.venv
+
+# editor
+.vscode
+
+# system
+.DS_Store
+.env
