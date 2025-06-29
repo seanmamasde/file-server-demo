@@ -1,0 +1,31 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v2.0.4
+    hooks:
+      - id: autopep8
+        args: [--in-place, --aggressive, --aggressive]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.1
+    hooks:
+      - id: ruff
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: end-of-file-fixer
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (short)
+        entry: pytest -q
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

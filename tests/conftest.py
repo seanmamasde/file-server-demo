@@ -1,8 +1,8 @@
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
-from app.main import app
 from app import database as _db
+from app.main import app
 
 
 class _FakePool:
