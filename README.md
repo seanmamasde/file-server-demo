@@ -1,5 +1,7 @@
 # File Server Demo
 
+![ci](https://github.com/seanmamasde/file-server-demo/actions/workflows/ci.yml/badge.svg)
+
 ## Clone & Setup
 ```bash
 git clone https://github.com/seanmamasde/fileserver-demo.git

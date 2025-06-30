@@ -1,0 +1,105 @@
+name: CI
+
+# run on every branch and PR
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
+jobs:
+  lint-format:
+    name: Lint & format (pre-commit)
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.precommit.outputs.changes_detected }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5 # py312
+      - name: Cache pre-commit envs
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
+      - id: precommit
+        uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files
+      - name: Fail if auto-fixes were applied
+        if: steps.precommit.outputs.changes_detected == 'true'
+        run: |
+          echo "::error::Code was reformatted - please commit the changes."
+          exit 1
+
+  tests:
+    name: Unit tests
+    needs: lint-format
+    runs-on: ubuntu-latest
+    services: # throw-away Postgres so asyncpg can connect
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: filesdb
+          POSTGRES_USER: files
+          POSTGRES_PASSWORD: files
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U files -d filesdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          cache: "pip"
+      - name: Install project + dev deps
+        run: |
+          pip install poetry
+          poetry install --with dev
+      - name: Run pytest + coverage
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          poetry run pytest --cov=app
+
+  docker-publish:
+    name: Build & publish image
+    needs: [lint-format, tests]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write # allow pushing to ghcr
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU (multi-arch)
+        uses: docker/setup-qemu-action@v3 # multi-arch builder
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3 # modern buildx
+      - name: Login to GHCR
+        uses: docker/login-action@v3 # secure OIDC login
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5 # auto-generate tags/labels
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ github.ref_name }}
+            type=sha,prefix=,format=short
+            type=raw,value={{date 'YYYYMMDD'}}
+      - name: Build & push
+        uses: docker/build-push-action@v5 # build & push in one step
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
