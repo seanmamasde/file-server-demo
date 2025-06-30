@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     services: # throw-away Postgres so asyncpg can connect
       postgres:
-        image: postgres:16-alpine # mirrors docker-compose image
+        image: postgres:16-alpine
         env:
           POSTGRES_DB: filesdb
           POSTGRES_USER: files
@@ -56,13 +56,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           cache: "pip"
-      - name: Install project
+      - name: Install project + dev deps
         run: |
           pip install poetry
-          poetry install --no-root --only main,dev
+          poetry install --with dev
       - name: Run pytest + coverage
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          poetry run pytest -q --cov=app
+          poetry run pytest --cov=app
 
   docker-publish:
     name: Build & publish image
