@@ -46,7 +46,7 @@ def upload(api, file_path):
         resp = requests.post(
             f"{api}/upload", files={"file": (file_path.name, f)})
     if resp.ok:
-        CONSOLE.print(f":arrow_up_small: Uploaded [bold]{file_path.name}[/] "
+        CONSOLE.print(f"⬆️ Uploaded [bold]{file_path.name}[/] "
                       f"({resp.json()['size']} bytes)", style="green")
     else:
         error(resp)
@@ -68,7 +68,7 @@ def download(api, file_name, out):
     with outfile.open("wb") as f:
         for chunk in resp.iter_content(chunk_size=8192):
             f.write(chunk)
-    CONSOLE.print(f":floppy_disk: Saved to [bold]{outfile}[/]", style="green")
+    CONSOLE.print(f"💾 Saved to [bold]{outfile}[/]", style="green")
 
 
 @cli.command(name="list")
@@ -97,7 +97,7 @@ def _list(api):
 def delete(api, file_name):
     resp = requests.delete(f"{api}/delete/{file_name}")
     if resp.status_code == 204:
-        CONSOLE.print(f":wastebasket:  Deleted {file_name}", style="green")
+        CONSOLE.print(f"🗑️ Deleted {file_name}", style="green")
     else:
         error(resp)
 
@@ -111,7 +111,7 @@ def ping(api):
         status = "OK" if r.ok else f"{r.status_code}:{r.text}"
     except Exception as exc:  # noqa
         status = str(exc)
-    CONSOLE.print(f":stethoscope: Health-check: [bold]{status}[/]")
+    CONSOLE.print(f"🩺 Health-check: [bold]{status}[/]")
 
 
 if __name__ == "__main__":
