@@ -3,17 +3,29 @@
 ![ci](https://github.com/seanmamasde/file-server-demo/actions/workflows/ci.yml/badge.svg)
 
 ## Clone & Setup
-```bash
-git clone https://github.com/seanmamasde/fileserver-demo.git
-cd fileserver-demo
 
-# create virtualenv (any tool is fine)
-python -m venv .venv && source .venv/bin/activate
+- Download built images (`main` and `dev` branch builds):
 
-# install deps
-pip install poetry
-poetry install
-```
+  ```bash
+  # pull the latest image from the main branch
+  docker pull ghcr.io/seanmamasde/file-server-demo:main
+
+  # or pull a specific version by te commit hash
+  docker pull ghcr.io/seanmamasde/file-server-demo:8c712af
+  ```
+
+- Build from source:
+  ```bash
+  git clone https://github.com/seanmamasde/fileserver-demo.git
+  cd fileserver-demo
+
+  # create virtualenv (any tool is fine)
+  python -m venv .venv && source .venv/bin/activate
+
+  # install deps
+  pip install poetry
+  poetry install
+  ```
 
 ## Local Containers
 
